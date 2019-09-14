@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import math
 
 pygame.init()
 
@@ -11,22 +12,23 @@ class wall():
         self.a = np.array([x1,y1])
         self.b = np.array([x2,y2])
 
-    def show(self, wn):
+    def draw(self, wn):
         pygame.draw.line(wn, (255,255,255), (self.a), (self.b))
 
-        #print(self.a)
-        #DRAW circle at point the ray hits in drwar def
 
 class ray():
     def __init__(self, x, y):
         self.pos = np.array([x,y])
-        self.dir = np.array([0,1])
+        #self.dir = np.array([0,1])
+        self.dir = np.angle([0., 1.0j])
+
+        ###POSITION MUST BE IN ANGLE CHECK ARRAY ANGLE
 
     def point(self, x, y):
         self.dir[0] = x - self.pos[0]
         self.dir[1] = y - self.pos[1]
 
-    def show(self, wn):
+    def draw(self, wn):
         pygame.draw.line(wn, (255,255,255), (self.pos), (self.pos + self.dir))
 
     def impact(self):
@@ -49,26 +51,43 @@ class ray():
 
         if(t >= 0. and t <= 1. and u >= 0. and u <= 1.):
             print('Intersect')
+            px,py = (x1 + t*(x2 - x1), y1 + t*(y2-y1))
+            return(px,py)
         else:
             print('miss')
 
 
 
+class player():
+    def __init__(self, x, y):
+        self.pos = np.array([x,y])
+        self.rays = []
+        for i in range(359):
+            self.rays.append(ray(self.pos, math.radians(i)))
+
+    def draw(self):
+        pygame.draw.circle(wn, (255,0,0), (self.pos), 2)
+        for rayzz in self.rays:
+            rayzz.draw(wn)
+
+
 
 wall1 = wall(300, 100, 300, 400)
-ray1 = ray(200,200)
+player1 = player(100,100)
+#ray1 = ray(200,200)
 
 
 def drawGame():
     wn.fill((0,0,0))
-    wall1.show(wn)
+    wall1.draw(wn)
 
 
     x,y = pygame.mouse.get_pos()
-    ray1.point(x,y)
+    #ray1.point(x,y)
     #print(x,y)
-    ray1.impact()
-    ray1.show(wn)
+    #ray1.impact()
+    #ray1.draw(wn)
+    player1.draw()
     pygame.display.update()
 
 run = True
