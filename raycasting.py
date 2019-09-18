@@ -1,4 +1,5 @@
-######3D VIEWWWW
+########################
+## Top down view of rays
 
 import pygame
 import numpy as np
