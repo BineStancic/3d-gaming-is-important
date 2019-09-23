@@ -77,47 +77,70 @@ class Player():
     def __init__(self, x, y):
         self.pos = np.array([x,y])
         self.rays = []
-        self.heading = 0
-        self.fov = 90
-        for i in range(-self.fov/2, self.fov/2, 1):
+        #self.heading = 0
+        self.max = 60
+        self.min = 0
+        #self.fov = 90
+        for i in range(self.min, self.max, 1):
             radians = math.radians(i)
             dir_vec = [1000*math.cos(radians), 1000*math.sin(radians)]
             self.rays.append(Ray(self.pos, dir_vec))
 
     ###### CREATE A PLAYER ANGLES FUNCTION THAT YOU CAN CALL IN rotate.
-    def update_fov(self, fov):
-        self.fov = fov
+
+    def update_fov(self):
         self.rays = []
-        for i in range(-self.fov/2, self.fov/2, 1):
+        for i in range(self.min, self.max, 1):
             radians = math.radians(i)
             dir_vec = [1000*math.cos(radians), 1000*math.sin(radians)]
-            self.rays.append(Ray(self.pos, dir_vec + self.heading))
+            self.rays.append(Ray(self.pos, dir_vec))
+            #if i == (self.max - self.min)*0.5:
+            #    self.heading = dir_vec
+
 
 
     def draw(self):
+        player1.movement()
+
         pygame.draw.circle(wn, (255,0,0), (self.pos), 2)
         for rayzz in self.rays:
-            #print(rayzz)
             rayzz.draw(wn)
-#####MOVE METHOD FOR PLAYER BASED ON KEY DIRECTIONSSS SO FAR X<Y FROM MOUSE POSSS!!!!
+
+    #####MOVE METHOD FOR PLAYER BASED ON KEY DIRECTIONSSS SO FAR X<Y FROM MOUSE POSSS!!!!
+    '''
     def move(self, x, y):
         self.pos[0] = x
         self.pos[1] = y
+    '''
+
+    def movement(self, vel):
+        #print(self.max, self.min)
+
+        print((self.max - self.min)/2)
+        #print(radian)
+        #direct = [1000*math.cos(radian), 1000*math.sin(radian)]
+        #print(direct)
+
+
+        self.pos[0] += vel
+        self.pos[1] += vel
+
+
+
+
+    def rotate(self, min_change, max_change):
+        self.max = self.max + max_change
+        print(self.max, self.min)
+        self.min = self.min + min_change
+        self.update_fov()
 
     '''
-    def rotate(self, min_change, max_change):
-        #print('change')
-        self.max = self.max + max_change
-        #print(self.max)
-        self.min = self.min + min_change
-
-
     def rotate(self, atm):
         vel = [1000*math.cos(self.heading), 1000*math.sin(self.heading)]
         np.append(self.pos, vel)
         print('rot')
         print(vel)
-    '''
+
 
     def rotate(self,angle):
         self.heading += angle
@@ -126,7 +149,7 @@ class Player():
             radians = math.radians(i)
             dir_vec = [1000*math.cos(radians), 1000*math.sin(radians)]
             self.rays[index].append(Ray(self.pos, dir_vec + self.heading))
-
+    '''
 
 
     def look(self, walls):
@@ -165,6 +188,7 @@ walls.append(Wall(0, 250, 500, 250))
 walls.append(Wall(250, 0, 250, 500))
 
 #ADD more walls to create a map
+keys = pygame.key.get_pressed()
 
 
 
@@ -174,23 +198,22 @@ player1 = Player(200,200)
 
 def drawGame():
     wn.fill((0,0,0))
-
-    x,y = pygame.mouse.get_pos()
-    player1.move(x,y)
-
-
     keys = pygame.key.get_pressed()
+    #x,y = pygame.mouse.get_pos()
+    #player1.move(x,y)
+
 
 
 
     if keys[pygame.K_a]:
-        player1.rotate(-1)
+        player1.rotate(-1, -1)
     if keys[pygame.K_d]:
-        player1.rotate(1)
+        player1.rotate(1,1)
 
-
-
-
+    if keys[pygame.K_w]:
+        player1.movement(-1)
+    if keys[pygame.K_s]:
+        player1.movement(1)
 
 
 
