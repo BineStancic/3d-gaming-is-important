@@ -107,19 +107,19 @@ class Player():
             rayzz.draw(wn)
 
     #####MOVE METHOD FOR PLAYER BASED ON KEY DIRECTIONSSS SO FAR X<Y FROM MOUSE POSSS!!!!
-
+    '''
     def move(self,x,y):
         self.pos[0] = x
         self.pos[1] = y
-
+    '''
     def movement(self):
-        if keys[pygame.K_a]:# and self.pos[0] > self.vel:
+        if keys[pygame.K_a] and self.pos[0] > 5:
             self.pos[0] -= self.vel
-        if keys[pygame.K_d]:# and self.pos[0] < wn_x:
+        if keys[pygame.K_d] and self.pos[0] < wn_x - 5:
             self.pos[0] += self.vel
-        if keys[pygame.K_w]:# and self.pos[1] > self.vel:
+        if keys[pygame.K_w] and self.pos[1] > 5:
             self.pos[1] -= self.vel
-        if keys[pygame.K_s]:# and self.pos[1] < wn_y:
+        if keys[pygame.K_s] and self.pos[1] < wn_y - 5:
             self.pos[1] += self.vel
 
 
@@ -165,12 +165,34 @@ class Player():
                         closest = point
                         bool = True
             if bool == True:
-                print("closest ray")
-                #pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
+                #print("closest ray")
+                pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
             scene.append(record)
         return scene
 
+    def look_balls(self, walls):
+        scene = []
+        for i in range(len(self.rays)):
+            rayzz = self.rays[i]
+            closest = 0
+            bool = False
+            record = 10000
+            for wall in walls:
+                point = rayzz.impact(wall)
+                if point != False:
+                    dist = math.hypot(point[0] - self.pos[0], point[1] - self.pos[1])
+                    ##print(dist)
+                    if dist < record:
+                        record = dist
+                        closest = point
+                        bool = True
+                    if bool == True:
+                        #print("closest ray")
+                        pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
+                    scene.append(record)
+        return scene
 
+    '''
     def look_ball(self, walls, balls):
         scene = []
         for i in range(len(self.rays)):
@@ -188,16 +210,16 @@ class Player():
                         #print(dist_w)
                         if point_b != False:
                             dist_b = math.hypot(point_b[0] - self.pos[0], point_b[1] - self.pos[1])
-                            print(dist_b)
-                        #if dist < record:
-                        #    record = dist
-                        #    closest = point
-                        #    bool = True
+                            if dist_w < record:
+                                record = dist_w
+                                closest = point_w
+                                bool = True
             if bool == True:
                 #print("closest ray")
                 pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
             scene.append(record)
         return scene
+    '''
 
 class Object():
     def __init__(self, x1, y1, x2, y2):
@@ -241,8 +263,8 @@ balls.append(Object(350,350,370,350))
 
 def drawGame():
     wn.fill((0,0,0))
-    x,y = pygame.mouse.get_pos()
-    player1.move(x,y)
+    #x,y = pygame.mouse.get_pos()
+    #player1.move(x,y)
 
     #if keys[pygame.K_a]:
     #    player1.rotate(-1, -1)
@@ -257,16 +279,17 @@ def drawGame():
     for wall in walls:
         wall.draw(wn)
 
-    '''
+
     #3DDDDDDDDDD
     scene = player1.look(walls)
+
     #print(scene)
     #2 times because of the 500 pixels of top down!!
     elem_w = wn_x/len(scene)
     for i in range(len(scene)):
-        map1 = interp1d([0,500],[255,0])
+        map1 = interp1d([0,708],[255,0]) ###708 is the longest diagonal
         adjusted = map1(scene[i])
-        map2 = interp1d([0,500],[wn_y,0])
+        map2 = interp1d([0,708],[wn_y,0])
         height2 = map2(scene[i])
         #Centre of rectangle
         x_cen = (i*elem_w + elem_w/2)
@@ -280,7 +303,22 @@ def drawGame():
     for ball in balls:
         ball.topdown_draw(wn)
 
-    ball_view = player1.look_ball(walls,balls)
+    ball_view = player1.look_balls(balls)
+    elem_w2 = wn_x/(len(ball_view)+1)
+
+    #print(ball_view)
+    for i in range(len(ball_view)):
+        #map1 = interp1d([0,500],[255,0])
+        #adjusted = map1(scene[i])
+        #map2 = interp1d([0,500],[wn_y,0])
+        #height2 = map2(scene[i])
+        #Centre of rectangle
+        x_cen2 = (i*elem_w2 + elem_w2/2)
+        y_cen2 = wn_y/2
+        #Converted to corner axis based on width, height
+        pygame.draw.rect(wn, (255, 0, 0), (wn_x + (x_cen2 - elem_w2/2), wn_y/2, 10, 10))
+
+    '''
     #print(ball_view)
 
 
@@ -289,20 +327,22 @@ def drawGame():
 
 run = True
 while run:
-    #pygame.event.set_grab(True)
-    #pygame.mouse.set_pos = (250, 250)
-    #mouse_move = (0,0)
+    keys = pygame.key.get_pressed()
+
+    pygame.event.set_grab(True)
+    pygame.mouse.set_pos = (250, 250)
+    mouse_move = (0,0)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if keys[pygame.K_ESCAPE]:
             run = False
 
-        #if event.type == pygame.MOUSEMOTION:
-        #    mouse_move = event.rel
-        #if mouse_move != (0,0):
-        #    x_rotation = np.sign(mouse_move[0])
-        #    player1.rotate(x_rotation, x_rotation)
+        if event.type == pygame.MOUSEMOTION:
+            mouse_move = event.rel
+        if mouse_move != (0,0):
+            x_rotation = np.sign(mouse_move[0])
+            player1.rotate(x_rotation, x_rotation)
 
-    #pygame.mouse.set_visible(False)
+    pygame.mouse.set_visible(False)
 
 
     keys = pygame.key.get_pressed()
