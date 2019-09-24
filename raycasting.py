@@ -9,8 +9,8 @@ from scipy.interpolate import interp1d
 
 pygame.init()
 
-wn_x, wn_y = (1000, 500)
-wn = pygame.display.set_mode((wn_x, wn_y))
+wn_x, wn_y = (500, 500)
+wn = pygame.display.set_mode((1000, 500))
 
 class Wall():
     def __init__(self, x1, y1, x2, y2):
@@ -77,7 +77,7 @@ class Player():
     def __init__(self, x, y):
         self.pos = np.array([x,y])
         self.rays = []
-        #self.heading = 0
+        self.vel = 5
         self.max = 60
         self.min = 0
         #self.fov = 90
@@ -107,23 +107,17 @@ class Player():
             rayzz.draw(wn)
 
     #####MOVE METHOD FOR PLAYER BASED ON KEY DIRECTIONSSS SO FAR X<Y FROM MOUSE POSSS!!!!
-    '''
-    def move(self, x, y):
-        self.pos[0] = x
-        self.pos[1] = y
-    '''
-
-    def movement(self, vel):
-        #print(self.max, self.min)
-
-        print((self.max - self.min)/2)
-        #print(radian)
-        #direct = [1000*math.cos(radian), 1000*math.sin(radian)]
-        #print(direct)
 
 
-        self.pos[0] += vel
-        self.pos[1] += vel
+    def movement(self):
+        if keys[pygame.K_a]:# and self.pos[0] > self.vel:
+            self.pos[0] -= self.vel
+        if keys[pygame.K_d]:# and self.pos[0] < wn_x:
+            self.pos[0] += self.vel
+        if keys[pygame.K_w]:# and self.pos[1] > self.vel:
+            self.pos[1] -= self.vel
+        if keys[pygame.K_s]:# and self.pos[1] < wn_y:
+            self.pos[1] += self.vel
 
 
 
@@ -181,11 +175,16 @@ walls.append(Wall(0, 0, 500, 0))
 walls.append(Wall(0, 0, 0, 500))
 walls.append(Wall(500, 0, 500, 500))
 walls.append(Wall(0, 500, 500, 500))
-walls.append(Wall(100, 100, 200, 200))
-walls.append(Wall(100, 100, 100, 400))
-walls.append(Wall(100, 100, 100, 400))
-walls.append(Wall(0, 250, 500, 250))
-walls.append(Wall(250, 0, 250, 500))
+
+walls.append(Wall(50, 50, 50, 150))
+walls.append(Wall(100, 0, 100, 100))
+walls.append(Wall(50, 100, 100, 100))
+walls.append(Wall(0, 250, 100, 250))
+walls.append(Wall(100, 250, 100, 300))
+walls.append(Wall(200, 50, 200, 300))
+walls.append(Wall(200, 300, 300, 300))
+walls.append(Wall(100, 250, 100, 300))
+
 
 #ADD more walls to create a map
 keys = pygame.key.get_pressed()
@@ -198,22 +197,16 @@ player1 = Player(200,200)
 
 def drawGame():
     wn.fill((0,0,0))
-    keys = pygame.key.get_pressed()
     #x,y = pygame.mouse.get_pos()
     #player1.move(x,y)
 
 
 
 
-    if keys[pygame.K_a]:
-        player1.rotate(-1, -1)
-    if keys[pygame.K_d]:
-        player1.rotate(1,1)
-
-    if keys[pygame.K_w]:
-        player1.movement(-1)
-    if keys[pygame.K_s]:
-        player1.movement(1)
+    #if keys[pygame.K_a]:
+    #    player1.rotate(-1, -1)
+    #if keys[pygame.K_d]:
+    #    player1.rotate(1,1)
 
 
 
@@ -226,23 +219,42 @@ def drawGame():
     #3DDDDDDDDDD
     scene = player1.look(walls)
     #print(scene)
+    #2 times because of the 500 pixels of top down!!
     elem_w = wn_x/len(scene)
     for i in range(len(scene)):
         map1 = interp1d([0,500],[255,0])
         adjusted = map1(scene[i])
         map2 = interp1d([0,500],[wn_y,0])
         height2 = map2(scene[i])
-        pygame.draw.rect(wn, (adjusted, adjusted, adjusted), (i*elem_w + wn_x/2, 0 + height2/3, elem_w, height2))
+        #Centre of rectangle
+        x_cen = (i*elem_w + elem_w/2)
+        y_cen = wn_y/2
+        #Converted to corner axis based on width, height
+        pygame.draw.rect(wn, (adjusted, adjusted, adjusted), (wn_x + (x_cen - elem_w/2), y_cen -height2 /2, elem_w, height2))
 
 
     pygame.display.update()
 
 run = True
 while run:
+    pygame.event.set_grab(True)
+    pygame.mouse.set_pos = (250, 250)
+    mouse_move = (0,0)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.K_ESCAPE:
             run = False
 
+        if event.type == pygame.MOUSEMOTION:
+            mouse_move = event.rel
+        if mouse_move != (0,0):
+            x_rotation = np.sign(mouse_move[0])
+            player1.rotate(x_rotation, x_rotation)
+
+    pygame.mouse.set_visible(False)
+
+
+    keys = pygame.key.get_pressed()
+    player1.movement()
     drawGame()
 
 
