@@ -1,5 +1,5 @@
 ########################
-## 3D view
+## MAKING 3D balls
 
 import pygame
 import numpy as np
@@ -108,6 +108,9 @@ class Player():
 
     #####MOVE METHOD FOR PLAYER BASED ON KEY DIRECTIONSSS SO FAR X<Y FROM MOUSE POSSS!!!!
 
+    def move(self,x,y):
+        self.pos[0] = x
+        self.pos[1] = y
 
     def movement(self):
         if keys[pygame.K_a]:# and self.pos[0] > self.vel:
@@ -124,7 +127,6 @@ class Player():
 
     def rotate(self, min_change, max_change):
         self.max = self.max + max_change
-        print(self.max, self.min)
         self.min = self.min + min_change
         self.update_fov()
 
@@ -163,11 +165,50 @@ class Player():
                         closest = point
                         bool = True
             if bool == True:
+                print("closest ray")
+                #pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
+            scene.append(record)
+        return scene
+
+
+    def look_ball(self, walls, balls):
+        scene = []
+        for i in range(len(self.rays)):
+            rayzz = self.rays[i]
+            closest_w = 0
+            closest_b = 0
+            bool = False
+            record = 10000
+            for wall in walls:
+                for ball in balls:
+                    point_w = rayzz.impact(wall)
+                    point_b = rayzz.impact(ball)
+                    if point_w != False:
+                        dist_w = math.hypot(point_w[0] - self.pos[0], point_w[1] - self.pos[1])
+                        #print(dist_w)
+                        if point_b != False:
+                            dist_b = math.hypot(point_b[0] - self.pos[0], point_b[1] - self.pos[1])
+                            print(dist_b)
+                        #if dist < record:
+                        #    record = dist
+                        #    closest = point
+                        #    bool = True
+            if bool == True:
                 #print("closest ray")
                 pygame.draw.line(wn, (255,255,255), (self.pos), (closest))
             scene.append(record)
         return scene
-#walls = Wall(0, 0, wn_x, 0)
+
+class Object():
+    def __init__(self, x1, y1, x2, y2):
+        self.a = np.array([x1,y1])
+        self.b = np.array([x2,y2])
+
+    def topdown_draw(self, wn):
+        pygame.draw.line(wn, (255,0,0), (self.a), (self.b))
+
+    def fps_draw(self):
+        return
 
 
 walls = []
@@ -192,16 +233,16 @@ keys = pygame.key.get_pressed()
 
 
 player1 = Player(200,200)
+balls = []
+balls.append(Object(10, 20, 20, 20))
+balls.append(Object(350,350,370,350))
 #ray1 = ray(200,200)
 
 
 def drawGame():
     wn.fill((0,0,0))
-    #x,y = pygame.mouse.get_pos()
-    #player1.move(x,y)
-
-
-
+    x,y = pygame.mouse.get_pos()
+    player1.move(x,y)
 
     #if keys[pygame.K_a]:
     #    player1.rotate(-1, -1)
@@ -216,6 +257,7 @@ def drawGame():
     for wall in walls:
         wall.draw(wn)
 
+    '''
     #3DDDDDDDDDD
     scene = player1.look(walls)
     #print(scene)
@@ -232,25 +274,35 @@ def drawGame():
         #Converted to corner axis based on width, height
         pygame.draw.rect(wn, (adjusted, adjusted, adjusted), (wn_x + (x_cen - elem_w/2), y_cen -height2 /2, elem_w, height2))
 
+    '''
+    #######################DRAWING BALLS
+
+    for ball in balls:
+        ball.topdown_draw(wn)
+
+    ball_view = player1.look_ball(walls,balls)
+    #print(ball_view)
+
+
 
     pygame.display.update()
 
 run = True
 while run:
-    pygame.event.set_grab(True)
-    pygame.mouse.set_pos = (250, 250)
-    mouse_move = (0,0)
+    #pygame.event.set_grab(True)
+    #pygame.mouse.set_pos = (250, 250)
+    #mouse_move = (0,0)
     for event in pygame.event.get():
-        if event.type == pygame.K_ESCAPE:
+        if event.type == pygame.QUIT:
             run = False
 
-        if event.type == pygame.MOUSEMOTION:
-            mouse_move = event.rel
-        if mouse_move != (0,0):
-            x_rotation = np.sign(mouse_move[0])
-            player1.rotate(x_rotation, x_rotation)
+        #if event.type == pygame.MOUSEMOTION:
+        #    mouse_move = event.rel
+        #if mouse_move != (0,0):
+        #    x_rotation = np.sign(mouse_move[0])
+        #    player1.rotate(x_rotation, x_rotation)
 
-    pygame.mouse.set_visible(False)
+    #pygame.mouse.set_visible(False)
 
 
     keys = pygame.key.get_pressed()
