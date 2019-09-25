@@ -11,6 +11,8 @@ pygame.init()
 
 wn_x, wn_y = (500, 500)
 wn = pygame.display.set_mode((1000, 500))
+font = pygame.font.SysFont('comicsans', 20, True)
+
 
 class Wall():
     def __init__(self, x1, y1, x2, y2):
@@ -260,8 +262,8 @@ balls.append(Object(10, 20, 20, 20))
 balls.append(Object(350,350,370,350))
 #ray1 = ray(200,200)
 
-
 def drawGame():
+    score = 0
     wn.fill((0,0,0))
     #x,y = pygame.mouse.get_pos()
     #player1.move(x,y)
@@ -278,6 +280,7 @@ def drawGame():
 
     for wall in walls:
         wall.draw(wn)
+
 
 
     #3DDDDDDDDDD
@@ -297,33 +300,33 @@ def drawGame():
         #Converted to corner axis based on width, height
         pygame.draw.rect(wn, (adjusted, adjusted, adjusted), (wn_x + (x_cen - elem_w/2), y_cen -height2 /2, elem_w, height2))
 
-    '''
+
+
     #######################DRAWING BALLS
 
     for ball in balls:
         ball.topdown_draw(wn)
 
     ball_view = player1.look_balls(balls)
-    elem_w2 = wn_x/(len(ball_view)+1)
-
+    #elem_w2 = wn_x/(len(ball_view)+1)
     #print(ball_view)
+    ball_exist = []
     for i in range(len(ball_view)):
-        #map1 = interp1d([0,500],[255,0])
-        #adjusted = map1(scene[i])
-        #map2 = interp1d([0,500],[wn_y,0])
-        #height2 = map2(scene[i])
-        #Centre of rectangle
-        x_cen2 = (i*elem_w2 + elem_w2/2)
-        y_cen2 = wn_y/2
-        #Converted to corner axis based on width, height
-        pygame.draw.rect(wn, (255, 0, 0), (wn_x + (x_cen2 - elem_w2/2), wn_y/2, 10, 10))
+        if ball_view[i] != 10000:
+                ball_exist.append(ball_view[i])
 
-    '''
-    #print(ball_view)
-
+    #print(ball_exist)
+    if len(ball_exist) != 0:
+        ball_dist = sum(ball_exist)/ len(ball_exist)
+        text = font.render('Distance to ball: ' +str(ball_dist), 1, (255,0,0))
+        wn.blit(text, (10, 10))
+        if ball_dist == 0:
+            print("yeet")
+            balls.pop()
 
 
     pygame.display.update()
+
 
 run = True
 while run:
