@@ -80,7 +80,7 @@ class Player():
         self.pos = np.array([x,y])
         self.rays = []
         self.vel = 5
-        self.max = 60
+        self.max = 50
         self.min = 0
         #self.fov = 90
         for i in range(self.min, self.max, 1):
@@ -246,9 +246,21 @@ walls.append(Wall(100, 0, 100, 100))
 walls.append(Wall(50, 100, 100, 100))
 walls.append(Wall(0, 250, 100, 250))
 walls.append(Wall(100, 250, 100, 300))
-walls.append(Wall(200, 50, 200, 300))
-walls.append(Wall(200, 300, 300, 300))
-walls.append(Wall(100, 250, 100, 300))
+walls.append(Wall(200, 50, 200, 450))
+walls.append(Wall(200, 400, 50, 400))
+walls.append(Wall(50, 400, 50, 300))
+walls.append(Wall(350, 300, 350, 400))
+walls.append(Wall(200, 250, 350, 250))
+walls.append(Wall(350, 250, 350, 150))
+walls.append(Wall(350, 150, 500, 150))
+walls.append(Wall(100, 200, 200, 200))
+walls.append(Wall(300, 50, 300, 150))
+walls.append(Wall(300, 50, 500, 50))
+walls.append(Wall(200, 350, 300, 350))
+walls.append(Wall(100, 250, 100, 350))
+walls.append(Wall(100, 250, 100, 350))
+walls.append(Wall(100, 250, 100, 350))
+
 
 
 #ADD more walls to create a map
@@ -256,26 +268,25 @@ keys = pygame.key.get_pressed()
 
 
 
-player1 = Player(200,200)
+player1 = Player(400,400)
 balls = []
-balls.append(Object(10, 20, 20, 20))
-balls.append(Object(350,350,370,350))
-#ray1 = ray(200,200)
+balls.append(Object(450,100,450,150))
+balls.append(Object(200,150,250,150))
 
+balls.append(Object(0, 20, 50, 20))
+#balls.append(Object(200,150,250,150))
+balls.append(Object(150,450,150,500))
+
+
+#
+#
+#Append the balls so that the last one is the first one you find
+#ray1 = ray(200,200)
 def drawGame():
     score = 0
     wn.fill((0,0,0))
     #x,y = pygame.mouse.get_pos()
     #player1.move(x,y)
-
-    #if keys[pygame.K_a]:
-    #    player1.rotate(-1, -1)
-    #if keys[pygame.K_d]:
-    #    player1.rotate(1,1)
-
-
-
-
 
 
     for wall in walls:
@@ -286,7 +297,6 @@ def drawGame():
     #3DDDDDDDDDD
     scene = player1.look(walls)
 
-    #print(scene)
     #2 times because of the 500 pixels of top down!!
     elem_w = wn_x/len(scene)
     for i in range(len(scene)):
@@ -308,14 +318,11 @@ def drawGame():
         ball.topdown_draw(wn)
 
     ball_view = player1.look_balls(balls)
-    #elem_w2 = wn_x/(len(ball_view)+1)
-    #print(ball_view)
+
     ball_exist = []
     for i in range(len(ball_view)):
         if ball_view[i] != 10000:
                 ball_exist.append(ball_view[i])
-
-    #print(ball_exist)
     if len(ball_exist) != 0:
         ball_dist = sum(ball_exist)/ len(ball_exist)
         text = font.render('Distance to ball: ' +str(ball_dist), 1, (255,0,0))
@@ -323,10 +330,16 @@ def drawGame():
         if ball_dist == 0:
             print("yeet")
             balls.pop()
+    text2 = font.render('Balls Remaining: ' +str(len(balls)), 1, (255,0,0))
+    wn.blit(text2, (380, 10))
 
 
     pygame.display.update()
 
+def start_game():
+    return
+def end_game():
+    return
 
 run = True
 while run:
