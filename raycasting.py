@@ -27,8 +27,6 @@ class Ray():
         self.pos = pos
         #print("secondd" +str(self.pos))
         #self.dir = np.array([0,1])
-        #
-        #
         self.dir = dir   #np.angle(complex([0., 1.0j]), deg = True)
 
         #self.dir =
